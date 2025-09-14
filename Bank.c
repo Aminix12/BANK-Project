@@ -1,112 +1,305 @@
-#include<stdio.h>
+#include <stdio.h>
+#include <string.h>
 
-float Balance = 0.0;
+#define MAX_ACCOUNT 100
 
-int Deposit_Money(){
+struct Account
+{
+    int accountID;
+    char name[50];
+    float balance;
+};
+
+struct Account Accounts[MAX_ACCOUNT];
+int accountCount = 0;
+
+
+int Create_Account(){
+
+    printf("=== Create Account ===\n");
+
+    struct Account NewAccount;
+    NewAccount.accountID = accountCount + 1;
+
+    printf("Enter Name: ");
+    scanf("%s",&NewAccount.name);
+
+    printf("Enter Initial Balance: ");
+    scanf("%f",&NewAccount.balance);
+
+    Accounts[accountCount ++] = NewAccount;
+
+    printf("\n Account create with | ID: %d | Name: %s |\n",NewAccount.accountID,NewAccount.name);
+
+
+    return 0;
+}
+
+int List_Account(){
+    
+    printf("=== List Account Option ===\n");
+
+    for (int i = 0; i < accountCount; i++)
+    {
+        printf("\n| ID: %d | Name: %s |Balance %.2f MAD|\n",
+            Accounts[i].accountID,
+            Accounts[i].name,
+            Accounts[i].balance);
+    }
+
+    return 0;
+
+}
+
+int Remove_Account(){
+    
+    printf("=== Remove Account Option ===\n");
+
+    int id,found = 0;
+    printf("Enter Account ID to remove: ");
+    scanf("%d",&id);
+
+    for (int i = 0; i < accountCount; i++)
+    {
+        if (Accounts[i].accountID == id)
+        {
+            found = 1;
+            for (int j = i; j < accountCount - 1;j++)
+            {
+                Accounts[j] = Accounts[j + 1];
+
+            }
+            accountCount--;
+            printf("Account ID | %d | removed successfully\n",id);
+            break;
+            
+        }
+        
+    }
+    if (!found)
+    {
+        printf("Account ID | %d |not existe \n",id);
+    }
+    
+    return 0;
+}
+
+
+int Deposit_Account(){
+
+    int id,found = 0;
     float amount;
 
-    printf("\n---- DEPOSTI OPTION ----\n");
-    printf("Enter amount you want to deposit: ");
-    scanf("%f",&amount);
-    if (amount > 0)
-    {
-        Balance += amount;
-        printf("Successfully deposited %.2f MAD\n", amount);
-    }
-    else
-    {
-        printf("Invalid amount! Try again.\n");
-    }
-    
-    
+    printf("=== Deposit Account Option ===\n");
 
+    printf("Enter Account ID: ");
+    scanf("%d",&id);
+
+    for (int i = 0; i < accountCount; i++)
+    {
+        if (Accounts[i].accountID == id)
+        {
+            found = 1;
+            printf("Deposit money: ");
+            scanf("%f",&amount);
+
+            if (amount > 0)
+            {
+                Accounts[i].balance += amount;
+                printf("Successfully deposited %.2f MAD to Account ID: %d \n",amount,id);
+            }
+            else
+            {
+                printf("Invalid amount!\n");
+            }
+            break;
+            
+        }
+        
+    }
+    if (!found)
+    {
+        printf("Account ID | %d |not existe \n",id);
+    }
+
+    return 0;   
 }
 
-int Withdraw_Money(){
 
+int Withdraw_Account(){
+
+    int id,found = 0;
     float amount;
 
-    printf("\n---- WITHDRAW OPTION ----\n");
-    printf("Enter amount you want to withdraw: ");
+    printf("=== Withdraw Account Option ===\n");
+
+    printf("Enter Account ID: ");
+    scanf("%d",&id);
+
+    for (int i = 0; i < accountCount; i++)
+    {
+        if (Accounts[i].accountID == id)
+        {
+            found = 1;
+            printf("Withdraw money: ");
+            scanf("%f",&amount);
+
+            if (amount > 0 && amount <= Accounts[i].balance)
+            {
+                Accounts[i].balance -= amount;
+                printf("Successfully withdrawn %.2f MAD to Account ID: %d \n",amount,id);
+            }
+            else
+            {
+                printf("Unsuccessfully Balance of Invalide amount!\n");
+            }
+            break;
+            
+        }
+        
+    }
+    if (!found)
+    {
+        printf("Account ID | %d |not existe \n",id);
+    }
+    
+    return 0;  
+}
+
+
+int Transfer_Account(){
+
+    int fromID,toID,foundFrom = -1,foundTo = -1;
+    float amount;
+    
+    printf("=== Transfer Account Option ===\n");
+
+    
+    printf("From Acount ID: ");
+    scanf("%d",&fromID);
+    printf("To Account ID: ");
+    scanf("%d",&toID);
+    printf("Amount to Transfer: ");
     scanf("%f",&amount);
-    if (amount > 0 && amount <= Balance)
+
+    for (int i = 0; i < accountCount; i++)
     {
-        Balance -= amount;
-        printf("Successfully deposited %.2f MAD\n", amount);
-    }
-    else if (amount > Balance)
-    {
-        printf("nsufficient balance!\n");
-    }
-    else
-    {
-        printf("Invalid amount! Try again.\n");
+        if (Accounts[i].accountID == fromID) { 
+            foundFrom = i;
+        }
+        if (Accounts[i].accountID == toID) { 
+            foundTo = i;
+        }
+
+        if (foundFrom == -1 || foundTo == -1)
+        {
+            printf("Account ID not Existe!\n");
+            return 0;
+        }
+        else if (amount > 0 && amount <= Accounts[foundFrom].balance)
+        {
+            Accounts[foundFrom].balance -=amount;
+            Accounts[foundTo].balance +=amount;
+            printf("Transferred %.2f MAD From Account ID %d to Account ID %d \n",amount,fromID,toID);
+        }
+        else
+        {
+            printf("Insufficient balance or invalid amount!\n");
+        } 
+        
     }
     
+
+    return 0;    
+}
+
+int Check_Balance(){
+    
+    int id,found = 0;
+
+    printf("=== Check Balance Option ===\n");
+    
+    printf("Enter Account ID: ");
+    scanf("%d",&id);
+
+    for (int i = 0; i < accountCount; i++)
+    {
+        if (Accounts[i].accountID == id){
+            found = 1;
+            printf("\n| ID: %d | Name: %s |Balance %.2f MAD|\n",
+            Accounts[i].accountID,
+            Accounts[i].name,
+            Accounts[i].balance);
+            break;
+        }
+
+    }
+    if (!found)
+    {
+        printf("Account ID | %d |not existe \n",id);
+    }    
+    return 0;
 }
 
 
-int Check_Balance_Money(){
-    printf("\n---- CHECK BALANCE OPTION ----\n");
-    printf("Your balance is: %.2f MAD\n", Balance);
-    if (Balance == 0)
-    {
-        printf("No money on your account! \n");
-    }
-    
-
-}
 
 
 int main(){
-
     int choice;
-    int pass_word,attempts = 0;
-    const correct_pass_word = 1234;
+    int correct_password = 1213;
+    int password,attempts = 0;
 
     do
     {
-        printf("Enter the password : ");
-        scanf("%d",&pass_word);
+        printf("Password: ");
+        scanf("%d",&password);
 
-    if (pass_word == correct_pass_word)
-    {
-        printf("Login successful, welcome! ✅ \n");
-    }
-    else
-    {
-        printf("Incorrect password ❌, try again .\n");
-        attempts++;
-    }
-    if (attempts == 4)
-    {
-        printf("too many attempts ! Access Denied .\n");
-        return 0;
-    }
-    
-    
-    } while (pass_word != correct_pass_word);
-    
-    
-
-    do
-    {
-        printf("\n --- CENTRAL BANK --- \n");
-        printf("----   Deposit ----\n");
-        printf("----   Withdraw -----\n");
-        printf("----   Chack Balance ----\n");
-        printf("----   Exit          ----\n");
-        printf("Enter your Choice sir : ");
-        scanf("%d",&choice);
-
-        switch (choice)
+        if (password == correct_password)
         {
-        case 1: Deposit_Money();break;
-        case 2: Withdraw_Money();break;
-        case 3: Check_Balance_Money();break;
-        case 4: printf("\nThank your for visiting us sir ! Goodbay\n");break;
-        default:printf("Invalide Choice ! , Tray again.");break;
+            printf("Successfully Login.");
+            break;
         }
-    } while (choice != 4);
+        else
+        {
+            printf("Unsuccessfully Login! Try again\n");
+            attempts++;
+        }
+        if (attempts == 3)
+        {
+            printf("too many attempts ! Access Denied ");
+            return 0;
+        }
+        
+        
+    } while (password != correct_password);
+
+
+   do{
+        printf("\n--- BANK MANAGEMENT ---\n");
+        printf(" 1. Create Account \n");
+        printf(" 2. List Accounts \n");
+        printf(" 3. Remove Account \n");
+        printf(" 4. Deposit \n");
+        printf(" 5. Withdraw \n");
+        printf(" 6. Transfer \n");
+        printf(" 7. Check Balance \n");
+        printf(" 8. Exit \n");
+        printf("Enter a Choice: ");
+        scanf("%d",&choice);
+    switch (choice)
+    {
+    case 1:Create_Account();break;
+    case 2:List_Account();break;
+    case 3:Remove_Account();break;
+    case 4:Deposit_Account();break;
+    case 5:Withdraw_Account();break;
+    case 6:Transfer_Account();break;
+    case 7:Check_Balance();break;
+    case 8:printf("Exiting... ");;break;
     
+    default:printf("Invalide Choice! Try again.\n");;break;
+    }
+
+   } while (choice != 8);
+   
 }
